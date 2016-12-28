@@ -1,0 +1,6 @@
+# IDEA
+.idea
+
+# Java
+*.class
+*.jar
