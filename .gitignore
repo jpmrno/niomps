@@ -1,6 +1,9 @@
 # IDEA
 .idea
 
+# Gradle
+!gradle/wrapper/gradle-wrapper.jar
+
 # Java
 *.class
 *.jar
