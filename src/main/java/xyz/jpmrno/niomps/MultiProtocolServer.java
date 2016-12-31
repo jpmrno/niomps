@@ -6,6 +6,7 @@ import xyz.jpmrno.niomps.handlers.NewConnectionHandler;
 import xyz.jpmrno.niomps.io.Closeables;
 
 import java.io.IOException;
+import java.net.InetSocketAddress;
 import java.nio.channels.ServerSocketChannel;
 import java.util.HashMap;
 import java.util.Map;
@@ -13,14 +14,14 @@ import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class MultiProtocolServer implements Runnable {
-    private final Map<Integer, ServerSocketChannel> sockets;
+    private final Map<Integer, ServerSocketChannel> channels;
 
     private final Dispatcher dispatcher;
 
     private AtomicBoolean running = new AtomicBoolean(false);
 
     public MultiProtocolServer(Dispatcher dispatcher) {
-        this.sockets = new HashMap<>();
+        this.channels = new HashMap<>();
         this.dispatcher = dispatcher;
     }
 
@@ -45,7 +46,7 @@ public class MultiProtocolServer implements Runnable {
 
         dispatcher.subscribe(channel, acceptHandler).register(SubscriptionType.ACCEPT);
 
-        ServerSocketChannel prev = sockets.put(port, channel);
+        ServerSocketChannel prev = channels.put(port, channel);
 
         if (prev != null) {
             Closeables.closeSilently(prev);
@@ -57,7 +58,7 @@ public class MultiProtocolServer implements Runnable {
             return;
         }
 
-        ServerSocketChannel channel = sockets.remove(port);
+        ServerSocketChannel channel = channels.remove(port);
         Closeables.closeSilently(channel);
     }
 
@@ -66,19 +67,43 @@ public class MultiProtocolServer implements Runnable {
             return;
         }
 
-        for (Integer port : sockets.keySet()) {
-            ServerSocketChannel channel = sockets.remove(port);
+        for (Integer port : channels.keySet()) {
+            ServerSocketChannel channel = channels.remove(port);
             Closeables.closeSilently(channel);
         }
     }
 
     @Override
     public void run() {
-        if (sockets.isEmpty()) {
+        if (running.get()) {
+            return;
+        }
+
+        if (channels.isEmpty()) {
             throw new IllegalStateException("No protocols specified");
         }
 
         running.set(true);
+
+        try {
+            for (Integer port : channels.keySet()) {
+                channels.get(port).bind(new InetSocketAddress(port));
+            }
+        } catch (Exception exception) {
+            running.set(false);
+            clearProtocols();
+        }
+
+        try {
+            while (running.get()) {
+                dispatcher.dispatch();
+            }
+        } catch (Exception exception) {
+            // TODO: logger.error("Dispatcher force closed", exception);
+        } finally {
+            running.set(false);
+            clearProtocols();
+        }
     }
 
     public boolean isRunning() {
