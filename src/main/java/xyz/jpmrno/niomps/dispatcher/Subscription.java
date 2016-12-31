@@ -19,10 +19,10 @@ public class Subscription {
         this.channel = Objects.requireNonNull(channel, "Channel can't be null");
         Objects.requireNonNull(handler, "Subscriber can't be null");
 
-        channel.register(selector, DispatcherOperation.NONE.getValue(), handler);
+        channel.register(selector, SubscriptionType.NONE.getValue(), handler);
     }
 
-    void add(final DispatcherOperation op) {
+    public void register(final SubscriptionType op) {
         if (cancelled) {
             return;
         }
@@ -38,7 +38,7 @@ public class Subscription {
         }
     }
 
-    void remove(final DispatcherOperation op) {
+    public void unregister(final SubscriptionType op) {
         if (cancelled) {
             return;
         }
@@ -54,7 +54,7 @@ public class Subscription {
         }
     }
 
-    void cancel() {
+    public void cancel() {
         if (cancelled) {
             return;
         }
@@ -68,7 +68,7 @@ public class Subscription {
         }
     }
 
-    boolean isCancelled() {
+    public boolean isCancelled() {
         return cancelled;
     }
 }

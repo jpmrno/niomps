@@ -1,6 +1,6 @@
 package xyz.jpmrno.niomps.dispatcher;
 
-import xyz.jpmrno.niomps.handlers.ConnectionHandler;
+import xyz.jpmrno.niomps.handlers.ActiveConnectionHandler;
 import xyz.jpmrno.niomps.handlers.NewConnectionHandler;
 
 import java.io.IOException;
@@ -9,7 +9,7 @@ import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.util.Iterator;
 
-public class SingleSelectorDispatcher implements Dispatcher, SubscriptionManager {
+public class SingleSelectorDispatcher implements Dispatcher {
     private final Selector selector;
 
     public SingleSelectorDispatcher() throws IOException {
@@ -35,7 +35,7 @@ public class SingleSelectorDispatcher implements Dispatcher, SubscriptionManager
             NewConnectionHandler handler = (NewConnectionHandler) key.attachment();
             handler.accept();
         } else {
-            ConnectionHandler handler = (ConnectionHandler) key.attachment();
+            ActiveConnectionHandler handler = (ActiveConnectionHandler) key.attachment();
 
             if (key.isValid() && key.isConnectable()) {
                 handler.connect();
@@ -49,11 +49,6 @@ public class SingleSelectorDispatcher implements Dispatcher, SubscriptionManager
                 handler.write();
             }
         }
-    }
-
-    @Override
-    public SubscriptionManager getManager() {
-        return this;
     }
 
     @Override

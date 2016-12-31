@@ -2,7 +2,7 @@ package xyz.jpmrno.niomps.dispatcher;
 
 import java.nio.channels.SelectionKey;
 
-public enum DispatcherOperation {
+public enum SubscriptionType {
     ACCEPT(SelectionKey.OP_ACCEPT),
     CONNECT(SelectionKey.OP_CONNECT),
     READ(SelectionKey.OP_READ),
@@ -12,7 +12,7 @@ public enum DispatcherOperation {
 
     private final int value;
 
-    DispatcherOperation(int value) {
+    SubscriptionType(int value) {
         this.value = value;
     }
 
