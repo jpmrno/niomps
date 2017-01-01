@@ -1,7 +1,7 @@
 package xyz.jpmrno.niomps.dispatcher;
 
-import xyz.jpmrno.niomps.handlers.ActiveConnectionHandler;
-import xyz.jpmrno.niomps.handlers.NewConnectionHandler;
+import xyz.jpmrno.niomps.handlers.ACHandler;
+import xyz.jpmrno.niomps.handlers.NCHandler;
 
 import java.io.IOException;
 import java.nio.channels.SelectableChannel;
@@ -32,10 +32,10 @@ public class SingleSelectorDispatcher implements Dispatcher {
 
     private void handle(SelectionKey key) {
         if (key.isValid() && key.isAcceptable()) {
-            NewConnectionHandler handler = (NewConnectionHandler) key.attachment();
+            NCHandler handler = (NCHandler) key.attachment();
             handler.accept();
         } else {
-            ActiveConnectionHandler handler = (ActiveConnectionHandler) key.attachment();
+            ACHandler handler = (ACHandler) key.attachment();
 
             if (key.isValid() && key.isConnectable()) {
                 handler.connect();

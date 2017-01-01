@@ -2,8 +2,10 @@ package xyz.jpmrno.niomps;
 
 import xyz.jpmrno.niomps.dispatcher.Dispatcher;
 import xyz.jpmrno.niomps.dispatcher.SubscriptionType;
-import xyz.jpmrno.niomps.handlers.NewConnectionHandler;
+import xyz.jpmrno.niomps.handlers.NCHandler;
+import xyz.jpmrno.niomps.handlers.NCHandlerBuilder;
 import xyz.jpmrno.niomps.io.Closeables;
+import xyz.jpmrno.niomps.protocol.ProtocolHandlerBuilder;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -17,15 +19,17 @@ public class MultiProtocolServer implements Runnable {
     private final Map<Integer, ServerSocketChannel> channels;
 
     private final Dispatcher dispatcher;
+    private final NCHandlerBuilder nchBuilder;
 
     private AtomicBoolean running = new AtomicBoolean(false);
 
-    public MultiProtocolServer(Dispatcher dispatcher) {
+    public MultiProtocolServer(final Dispatcher dispatcher, final NCHandlerBuilder nchBuilder) {
         this.channels = new HashMap<>();
-        this.dispatcher = dispatcher;
+        this.dispatcher = Objects.requireNonNull(dispatcher, "Dispatcher can't be null");
+        this.nchBuilder = Objects.requireNonNull(nchBuilder, "Builder can't be null");
     }
 
-    public void addProtocol(int port, ProtocolHandlerFactory factory) throws IOException {
+    public void addProtocol(final int port, final ProtocolHandlerBuilder phBuilder) throws IOException {
         if (running.get()) {
             return;
         }
@@ -35,15 +39,12 @@ public class MultiProtocolServer implements Runnable {
                     + "inclusive");
         }
 
-        Objects.requireNonNull(factory, "Protocol handler factory can't be null");
+        Objects.requireNonNull(phBuilder, "Protocol handler builder can't be null");
 
         ServerSocketChannel channel = ServerSocketChannel.open();
         channel.configureBlocking(false);
 
-        ConnectionHandlerFactory connectionHandlers = new ProxyConnectionHandlerFactory(
-                dispatcher, factory);
-        NewConnectionHandler acceptHandler = new Acceptor(channel, dispatcher, connectionHandlers);
-
+        NCHandler acceptHandler = nchBuilder.build(dispatcher, channel, phBuilder);
         dispatcher.subscribe(channel, acceptHandler).register(SubscriptionType.ACCEPT);
 
         ServerSocketChannel prev = channels.put(port, channel);
@@ -53,7 +54,7 @@ public class MultiProtocolServer implements Runnable {
         }
     }
 
-    public void removeProtocolOnPort(int port) {
+    public void removeProtocolOnPort(final int port) {
         if (running.get()) {
             return;
         }

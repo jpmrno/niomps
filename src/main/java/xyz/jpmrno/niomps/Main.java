@@ -3,6 +3,8 @@ package xyz.jpmrno.niomps;
 import xyz.jpmrno.niomps.dispatcher.Dispatcher;
 import xyz.jpmrno.niomps.dispatcher.SingleSelectorDispatcher;
 import xyz.jpmrno.niomps.dispatcher.Subscription;
+import xyz.jpmrno.niomps.handlers.AcceptorBuilder;
+import xyz.jpmrno.niomps.handlers.NCHandlerBuilder;
 
 import java.io.IOException;
 
@@ -17,7 +19,8 @@ public class Main {
             return;
         }
 
-        MultiProtocolServer server = new MultiProtocolServer(dispatcher);
+        NCHandlerBuilder nchBuilder = new AcceptorBuilder();
+        MultiProtocolServer server = new MultiProtocolServer(dispatcher, nchBuilder);
         server.run();
     }
 }
