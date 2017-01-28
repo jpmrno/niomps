@@ -15,7 +15,6 @@ public class Main {
             dispatcher = new SingleSelectorDispatcher();
         } catch (IOException exception) {
             System.err.println("Can't initialize dispatcher");
-            exception.printStackTrace();
             return;
         }
 

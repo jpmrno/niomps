@@ -42,10 +42,9 @@ public class MultiProtocolServer implements Runnable {
         Objects.requireNonNull(phBuilder, "Protocol handler builder can't be null");
 
         ServerSocketChannel channel = ServerSocketChannel.open();
-        channel.configureBlocking(false);
 
         NCHandler acceptHandler = nchBuilder.build(dispatcher, channel, phBuilder);
-        dispatcher.subscribe(channel, acceptHandler).register(SubscriptionType.ACCEPT);
+        acceptHandler.init();
 
         ServerSocketChannel prev = channels.put(port, channel);
 
