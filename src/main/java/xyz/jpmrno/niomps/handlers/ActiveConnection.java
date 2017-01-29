@@ -1,13 +1,14 @@
 package xyz.jpmrno.niomps.handlers;
 
-import xyz.jpmrno.niomps.protocol.ProtocolHandler;
+import xyz.jpmrno.niomps.protocol.Protocol;
 
+import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 
-public interface SocketConnection {
+public interface ActiveConnection {
     default boolean requestConnect(final InetSocketAddress address,
-                                   final ProtocolHandler serverProtocol) {
+                                   final Protocol otherProtocol) throws IOException {
         throw new UnsupportedOperationException();
     }
 
