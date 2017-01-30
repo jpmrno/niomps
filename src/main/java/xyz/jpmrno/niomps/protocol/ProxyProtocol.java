@@ -1,7 +1,15 @@
 package xyz.jpmrno.niomps.protocol;
 
+import xyz.jpmrno.niomps.protocol.echo.ProxyProtocolState;
+
 public class ProxyProtocol extends Protocol {
-    public ProxyProtocol(ProtocolState state) {
+    private ProxyProtocol otherProtocol;
+
+    public ProxyProtocol(ProxyProtocolState state) {
         super(state);
+    }
+
+    ProxyProtocol getOtherProtocol() {
+        return otherProtocol;
     }
 }

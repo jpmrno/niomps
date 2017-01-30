@@ -5,7 +5,7 @@ import xyz.jpmrno.niomps.handlers.ActiveConnection;
 import java.nio.ByteBuffer;
 import java.util.Objects;
 
-public class Protocol implements ProtocolHandler, ProtocolContext {
+public class Protocol implements ProtocolHandler {
     private static final int BUFFER_SIZE = 10000;
 
     private ProtocolState state;
@@ -22,17 +22,14 @@ public class Protocol implements ProtocolHandler, ProtocolContext {
         buffer = ByteBuffer.allocate(bufferSize);
     }
 
-    @Override
     public void setState(final ProtocolState state) {
         this.state = Objects.requireNonNull(state);
     }
 
-    @Override
     public ActiveConnection getConnection() {
         return connection;
     }
 
-    @Override
     public ByteBuffer getBuffer() {
         return buffer;
     }
