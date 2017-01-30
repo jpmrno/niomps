@@ -25,6 +25,8 @@ public class ConnectionHandler implements ACHandler, ActiveConnection {
     private boolean initialized = false;
     private boolean closeRequested = false;
 
+    private Protocol otherProtocol;
+
     public ConnectionHandler(final SubscriptionManager manager, final SocketChannel channel,
                              final Protocol protocol) throws IOException {
         channel.configureBlocking(false);
@@ -33,8 +35,8 @@ public class ConnectionHandler implements ACHandler, ActiveConnection {
         this.channel = channel;
         this.protocol = protocol;
         this.subscription = manager.subscribe(channel, this);
-        readBuffer = ByteBuffer.allocate(READ_BUFFER_SIZE);
-        writeBuffer = ByteBuffer.allocate(WRITE_BUFFER_SIZE);
+        this.readBuffer = ByteBuffer.allocate(READ_BUFFER_SIZE);
+        this.writeBuffer = ByteBuffer.allocate(WRITE_BUFFER_SIZE);
     }
 
     @Override
@@ -43,7 +45,8 @@ public class ConnectionHandler implements ACHandler, ActiveConnection {
             throw new IllegalStateException("Already initialized");
         }
 
-        protocol.afterAccept();
+        initialized = true;
+        protocol.afterAccept(this);
     }
 
     @Override
@@ -61,6 +64,7 @@ public class ConnectionHandler implements ACHandler, ActiveConnection {
             return false;
         }
 
+        this.otherProtocol = otherProtocol;
         ConnectionHandler otherHandler = new ConnectionHandler(manager, otherChannel, otherProtocol);
         otherHandler.subscription.register(SubscriptionType.CONNECT);
 
@@ -72,7 +76,8 @@ public class ConnectionHandler implements ACHandler, ActiveConnection {
         try {
             if (channel.finishConnect()) {
                 subscription.unregister(SubscriptionType.CONNECT);
-                protocol.afterConnect();
+                this.init();
+                otherProtocol.afterConnect();
             }
         } catch (Exception exception) {
             forceClose();

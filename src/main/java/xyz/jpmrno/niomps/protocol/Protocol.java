@@ -6,11 +6,15 @@ import java.nio.ByteBuffer;
 import java.util.Objects;
 
 public class Protocol implements ProtocolHandler, ProtocolContext {
-    private final ActiveConnection connection;
+    private ActiveConnection connection;
     private ProtocolState state;
 
-    public Protocol(ActiveConnection connection, ProtocolState state) {
-        this.connection = Objects.requireNonNull(connection);
+    public Protocol(final ProtocolState state) {
+        this.state = Objects.requireNonNull(state);
+    }
+
+    @Override
+    public void setState(final ProtocolState state) {
         this.state = Objects.requireNonNull(state);
     }
 
@@ -20,8 +24,13 @@ public class Protocol implements ProtocolHandler, ProtocolContext {
     }
 
     @Override
-    public void setState(ProtocolState state) {
-        this.state = Objects.requireNonNull(state);
+    public void afterAccept(final ActiveConnection connection) {
+        if (this.connection != null) {
+            throw new IllegalStateException("Connection already accepted");
+        }
+
+        this.connection = Objects.requireNonNull(connection);
+        this.state.afterAccept(this);
     }
 
     @Override
@@ -42,10 +51,5 @@ public class Protocol implements ProtocolHandler, ProtocolContext {
     @Override
     public void afterClose() {
         state.afterClose(this);
-    }
-
-    @Override
-    public void afterAccept() {
-        state.afterAccept(this);
     }
 }
