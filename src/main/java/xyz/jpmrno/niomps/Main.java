@@ -5,6 +5,7 @@ import xyz.jpmrno.niomps.dispatcher.SingleSelectorDispatcher;
 import xyz.jpmrno.niomps.dispatcher.Subscription;
 import xyz.jpmrno.niomps.handlers.AcceptorBuilder;
 import xyz.jpmrno.niomps.handlers.NCHandlerBuilder;
+import xyz.jpmrno.niomps.protocol.echo.EchoServerPB;
 
 import java.io.IOException;
 
@@ -20,6 +21,12 @@ public class Main {
 
         NCHandlerBuilder nchBuilder = new AcceptorBuilder();
         MultiProtocolServer server = new MultiProtocolServer(dispatcher, nchBuilder);
+        try {
+            server.addProtocol(5001, new EchoServerPB());
+        } catch (IOException exception) {
+            System.err.println("Can't add server protocol");
+            return;
+        }
         server.run();
     }
 }

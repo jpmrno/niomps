@@ -6,11 +6,20 @@ import java.nio.ByteBuffer;
 import java.util.Objects;
 
 public class Protocol implements ProtocolHandler, ProtocolContext {
-    private ActiveConnection connection;
+    private static final int BUFFER_SIZE = 10000;
+
     private ProtocolState state;
 
+    private ActiveConnection connection;
+    private final ByteBuffer buffer;
+
     public Protocol(final ProtocolState state) {
+        this(state, BUFFER_SIZE);
+    }
+
+    public Protocol(final ProtocolState state, int bufferSize) {
         this.state = Objects.requireNonNull(state);
+        buffer = ByteBuffer.allocate(bufferSize);
     }
 
     @Override
@@ -21,6 +30,11 @@ public class Protocol implements ProtocolHandler, ProtocolContext {
     @Override
     public ActiveConnection getConnection() {
         return connection;
+    }
+
+    @Override
+    public ByteBuffer getBuffer() {
+        return buffer;
     }
 
     @Override

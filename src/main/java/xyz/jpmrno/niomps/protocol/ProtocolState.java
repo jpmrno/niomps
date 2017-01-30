@@ -1,17 +1,17 @@
 package xyz.jpmrno.niomps.protocol;
 
-import xyz.jpmrno.niomps.handlers.ActiveConnection;
-
 import java.nio.ByteBuffer;
 
 public interface ProtocolState {
-    void afterConnect(ProtocolContext context);
+    void afterAccept(final ProtocolContext context);
 
-    void afterRead(ProtocolContext context, ByteBuffer buffer);
+    default void afterConnect(final ProtocolContext context) {
+        throw new UnsupportedOperationException("Handler has no connection support");
+    }
 
-    void afterWrite(ProtocolContext context);
+    void afterRead(final ProtocolContext context, final ByteBuffer source);
 
-    void afterClose(ProtocolContext context);
+    void afterWrite(final ProtocolContext context);
 
-    void afterAccept(ProtocolContext context);
+    void afterClose(final ProtocolContext context);
 }

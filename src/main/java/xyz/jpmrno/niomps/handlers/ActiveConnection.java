@@ -7,8 +7,7 @@ import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 
 public interface ActiveConnection {
-    default boolean requestConnect(final InetSocketAddress address,
-                                   final Protocol otherProtocol) throws IOException {
+    default boolean requestConnect(final InetSocketAddress address, final Protocol otherProtocol) {
         throw new UnsupportedOperationException();
     }
 

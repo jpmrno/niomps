@@ -5,7 +5,8 @@ import xyz.jpmrno.niomps.dispatcher.SubscriptionManager;
 import xyz.jpmrno.niomps.dispatcher.SubscriptionType;
 import xyz.jpmrno.niomps.io.Closeables;
 import xyz.jpmrno.niomps.protocol.Protocol;
-import xyz.jpmrno.niomps.protocol.ProtocolBuilder;
+import xyz.jpmrno.niomps.protocol.ProtocolHandler;
+import xyz.jpmrno.niomps.protocol.ProtocolHandlerBuilder;
 
 import java.io.IOException;
 import java.nio.channels.ServerSocketChannel;
@@ -14,12 +15,12 @@ import java.nio.channels.SocketChannel;
 public class Acceptor implements NCHandler {
     private final SubscriptionManager manager;
     private final ServerSocketChannel channel;
-    private final ProtocolBuilder phBuilder;
+    private final ProtocolHandlerBuilder phBuilder;
     private final Subscription subscription;
     private boolean initialized = false;
 
     public Acceptor(final SubscriptionManager manager, final ServerSocketChannel channel,
-                    final ProtocolBuilder phBuilder) throws IOException {
+                    final ProtocolHandlerBuilder phBuilder) throws IOException {
         channel.configureBlocking(false);
 
         this.manager = manager;
@@ -50,7 +51,7 @@ public class Acceptor implements NCHandler {
 
         try {
             if (client != null) {
-                Protocol protocol = phBuilder.build();
+                ProtocolHandler protocol = phBuilder.build();
                 ACHandler acHandler = new ConnectionHandler(manager, client, protocol);
                 acHandler.init();
             }

@@ -9,7 +9,7 @@ public interface ProtocolHandler {
 
     void afterConnect();
 
-    void afterRead(final ByteBuffer buffer);
+    void afterRead(final ByteBuffer source);
 
     void afterWrite();
 

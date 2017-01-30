@@ -4,7 +4,7 @@ import xyz.jpmrno.niomps.dispatcher.Dispatcher;
 import xyz.jpmrno.niomps.handlers.NCHandler;
 import xyz.jpmrno.niomps.handlers.NCHandlerBuilder;
 import xyz.jpmrno.niomps.io.Closeables;
-import xyz.jpmrno.niomps.protocol.ProtocolBuilder;
+import xyz.jpmrno.niomps.protocol.ProtocolHandlerBuilder;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -28,7 +28,7 @@ public class MultiProtocolServer implements Runnable {
         this.nchBuilder = Objects.requireNonNull(nchBuilder, "Builder can't be null");
     }
 
-    public void addProtocol(final int port, final ProtocolBuilder phBuilder) throws IOException {
+    public void addProtocol(final int port, final ProtocolHandlerBuilder phBuilder) throws IOException {
         if (running.get()) {
             return;
         }

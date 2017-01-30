@@ -5,6 +5,7 @@ import xyz.jpmrno.niomps.dispatcher.SubscriptionManager;
 import xyz.jpmrno.niomps.dispatcher.SubscriptionType;
 import xyz.jpmrno.niomps.io.Closeables;
 import xyz.jpmrno.niomps.protocol.Protocol;
+import xyz.jpmrno.niomps.protocol.ProtocolHandler;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -17,7 +18,7 @@ public class ConnectionHandler implements ACHandler, ActiveConnection {
 
     private final SubscriptionManager manager;
     private final SocketChannel channel;
-    private final Protocol protocol;
+    private final ProtocolHandler protocol;
     private final Subscription subscription;
     private final ByteBuffer readBuffer;
     private final ByteBuffer writeBuffer;
@@ -25,10 +26,10 @@ public class ConnectionHandler implements ACHandler, ActiveConnection {
     private boolean initialized = false;
     private boolean closeRequested = false;
 
-    private Protocol otherProtocol;
+    private ProtocolHandler otherProtocol;
 
     public ConnectionHandler(final SubscriptionManager manager, final SocketChannel channel,
-                             final Protocol protocol) throws IOException {
+                             final ProtocolHandler protocol) throws IOException {
         channel.configureBlocking(false);
 
         this.manager = manager;
@@ -65,7 +66,13 @@ public class ConnectionHandler implements ACHandler, ActiveConnection {
         }
 
         this.otherProtocol = otherProtocol;
-        ConnectionHandler otherHandler = new ConnectionHandler(manager, otherChannel, otherProtocol);
+        ConnectionHandler otherHandler = null;
+        try {
+            otherHandler = new ConnectionHandler(manager, otherChannel, otherProtocol);
+        } catch (IOException exception) {
+            // TODO
+            return false;
+        }
         otherHandler.subscription.register(SubscriptionType.CONNECT);
 
         return true;
